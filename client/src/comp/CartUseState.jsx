@@ -7,6 +7,22 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 const CartUseState = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
+  const [message, setMessage] = useState(""); // ✅ for modal message
+  const [showModal, setShowModal] = useState(false); // ✅ for modal visibility
+
+  // =======================
+  // Helper function to show message in modal
+  // =======================
+  const showMessage = (text) => {
+    setMessage(text);
+    setShowModal(true);
+
+    // Auto-close after 2.5 seconds
+    setTimeout(() => {
+      setShowModal(false);
+      setMessage("");
+    }, 2500);
+  };
 
   // =======================
   // Fetch all products from backend
@@ -52,27 +68,25 @@ const CartUseState = () => {
   // =======================
   const addToCart = async (product) => {
     setCart((prevCart) => {
-      const productId = product._id || product.id; // Use MongoDB _id
+      const productId = product._id || product.id;
       const existing = prevCart.find((item) => item._id === productId);
 
       if (existing) {
-        // Increment quantity
         const updatedCart = prevCart.map((item) =>
           item._id === productId ? { ...item, qty: item.qty + 1 } : item
         );
 
-        // Optional: update backend
         axios
           .put(`http://localhost:4000/api/cart/${productId}`, {
             qty: existing.qty + 1,
           })
           .catch((err) => console.error("Error updating cart:", err.message));
 
+        showMessage(`Quantity increased!`);
         return updatedCart;
       } else {
         const newItem = { ...product, qty: 1, _id: productId };
 
-        // Optional: add to backend
         axios
           .post("http://localhost:4000/api/cart", {
             productId: productId,
@@ -80,6 +94,7 @@ const CartUseState = () => {
           })
           .catch((err) => console.error("Error adding to cart:", err.message));
 
+        showMessage(`Added to cart Successfully`);
         return [...prevCart, newItem];
       }
     });
@@ -96,7 +111,6 @@ const CartUseState = () => {
         item._id === id ? { ...item, qty } : item
       );
 
-      // Update backend
       axios
         .put(`http://localhost:4000/api/cart/${id}`, { qty })
         .catch((err) => console.error("Error updating cart:", err.message));
@@ -109,12 +123,14 @@ const CartUseState = () => {
   // Remove item from cart
   // =======================
   const removeFromCart = async (id) => {
+    const removedItem = cart.find((item) => item._id === id);
     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
 
-    // Remove from backend
     axios
       .delete(`http://localhost:4000/api/cart/${id}`)
       .catch((err) => console.error("Error removing from cart:", err.message));
+
+    if (removedItem) showMessage(`${removedItem.name} removed from cart!`);
   };
 
   // =======================
@@ -127,6 +143,25 @@ const CartUseState = () => {
   // =======================
   return (
     <div className="container py-5">
+      {/* ✅ Modal Message Box */}
+      {showModal && (
+        <div
+          className="modal fade show"
+          style={{
+            display: "block",
+            backgroundColor: "rgba(0,0,0,0.4)",
+          }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content text-center border-success shadow">
+              <div className="modal-body">
+                <h5 className="text-success fw-bold">{message}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-5">
         <h2 className="text-primary">Our Products</h2>
@@ -252,7 +287,6 @@ const CartUseState = () => {
           {cart.length > 0 && (
             <div className="mt-auto pt-3 border-top">
               <h5 className="text-end">Total: ₹{total}</h5>
-              <button className="btn btn-success w-100 mt-2">Checkout</button>
             </div>
           )}
         </div>

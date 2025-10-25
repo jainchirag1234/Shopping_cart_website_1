@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+// CartRedux.jsx
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -13,6 +14,21 @@ import {
 const CartRedux = () => {
   const dispatch = useDispatch();
   const { products = [], cart = [] } = useSelector((state) => state.cart);
+
+  const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+
+  // =======================
+  // Show message in center modal
+  // =======================
+  const showMessage = (text) => {
+    setMessage(text);
+    setShowModal(true);
+    setTimeout(() => {
+      setShowModal(false);
+      setMessage("");
+    }, 2500);
+  };
 
   // =======================
   // Fetch products and cart
@@ -60,29 +76,26 @@ const CartRedux = () => {
     const existingItem = cart.find((item) => item._id === productId);
 
     if (existingItem) {
-      // Increment quantity if stock allows
       if (existingItem.qty >= product.stock) {
-        alert(`Only ${product.stock} items available in stock!`);
+        showMessage(`Only ${product.stock} items available in stock!`);
         return;
       }
       const newQty = existingItem.qty + 1;
-
       await fetch(`http://localhost:4000/api/cart/${productId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ qty: newQty }),
       });
-
       dispatch(updateQty({ id: productId, qty: newQty }));
+      showMessage(`Quantity increased!`);
     } else {
-      // Add new product
       await fetch("http://localhost:4000/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, qty: 1 }),
       });
-
       dispatch(addToCart({ ...product, qty: 1, _id: productId }));
+      showMessage(`Added to cart successfully!`);
     }
   };
 
@@ -94,7 +107,7 @@ const CartRedux = () => {
     if (!product) return;
 
     if (qty > product.stock) {
-      alert(`Only ${product.stock} items available in stock!`);
+      showMessage(`Only ${product.stock} items available in stock!`);
       qty = product.stock;
     }
 
@@ -107,14 +120,17 @@ const CartRedux = () => {
     });
 
     dispatch(updateQty({ id, qty }));
+    // showMessage(`${product.name} quantity updated!`);
   };
 
   // =======================
   // Remove from cart
   // =======================
   const handleRemoveFromCart = async (id) => {
+    const removedItem = cart.find((item) => item._id === id);
     await fetch(`http://localhost:4000/api/cart/${id}`, { method: "DELETE" });
     dispatch(removeFromCart(id));
+    if (removedItem) showMessage(`${removedItem.name} removed from cart!`);
   };
 
   // =======================
@@ -124,6 +140,25 @@ const CartRedux = () => {
 
   return (
     <div className="container py-5">
+      {/* ✅ Center Modal Message */}
+      {showModal && (
+        <div
+          className="modal fade show"
+          style={{
+            display: "block",
+            backgroundColor: "rgba(0,0,0,0.4)",
+          }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content text-center border-success shadow">
+              <div className="modal-body">
+                <h5 className="text-success fw-bold">{message}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-5">
         <h2 className="text-primary">Products</h2>
@@ -160,7 +195,6 @@ const CartRedux = () => {
                 <div className="card-body d-flex flex-column text-center">
                   <h5 className="card-title">{product.name}</h5>
                   <p className="text-muted fw-bold">₹{product.price}</p>
-                  <p className="text-muted">Stock: {product.stock}</p>
                   <button
                     className="btn btn-primary mt-auto"
                     onClick={() => handleAddToCart(product)}
@@ -256,7 +290,6 @@ const CartRedux = () => {
           {cart.length > 0 && (
             <div className="mt-auto pt-3 border-top">
               <h5 className="text-end">Total: ₹{total}</h5>
-              <button className="btn btn-success w-100 mt-2">Checkout</button>
             </div>
           )}
         </div>

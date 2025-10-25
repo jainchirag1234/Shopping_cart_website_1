@@ -13,9 +13,19 @@ function App() {
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
         <div className="container-fluid">
           <a className="navbar-brand fw-bold text-warning" href="#">
-            🛒 My Cart App
+            🛒 Shopping Cart App
           </a>
           <div className="d-flex">
+            <button
+              className={`btn mx-2 ${
+                activeCart === "addProduct"
+                  ? "btn-info text-dark fw-bold"
+                  : "btn-outline-light"
+              }`}
+              onClick={() => setActiveCart("addProduct")}
+            >
+              Add Product
+            </button>
             <button
               className={`btn mx-2 ${
                 activeCart === "useState"
@@ -36,26 +46,16 @@ function App() {
             >
               Cart (Redux)
             </button>
-            <button
-              className={`btn mx-2 ${
-                activeCart === "addProduct"
-                  ? "btn-info text-dark fw-bold"
-                  : "btn-outline-light"
-              }`}
-              onClick={() => setActiveCart("addProduct")}
-            >
-              Add Product
-            </button>
           </div>
         </div>
       </nav>
 
       {/* ✅ Page Content */}
       <div className="container mt-4">
-        {activeCart === "useState" && <CartUseState />}
-        {activeCart === "redux" && <CartRedux />}
         {activeCart === "addProduct" && <AddProducts />}{" "}
         {/* ✅ AddProducts render */}
+        {activeCart === "useState" && <CartUseState />}
+        {activeCart === "redux" && <CartRedux />}
       </div>
     </>
   );
