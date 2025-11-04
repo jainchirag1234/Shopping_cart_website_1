@@ -29,7 +29,7 @@ const CartUseState = () => {
   // =======================
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/products");
+      const res = await axios.get("http://localhost:4000/api/product");
       const updatedProducts = res.data.map((p) => ({
         ...p,
         image: p.image ? `http://localhost:4000/uploads/${p.image}` : null,
