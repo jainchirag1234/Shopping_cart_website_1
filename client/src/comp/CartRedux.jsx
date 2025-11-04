@@ -36,7 +36,7 @@ const CartRedux = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/products");
+        const res = await fetch("http://localhost:4000/api/product");
         const data = await res.json();
         const updatedProducts = data.map((p) => ({
           ...p,
