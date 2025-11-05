@@ -1,13 +1,17 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 const productRoute = require("./route/productRoute");
+const authRoutes = require("./route/authRoutes");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads")); // serve images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/api", productRoute);
+app.use("/api", authRoutes);
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/productDB")
