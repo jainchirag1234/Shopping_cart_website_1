@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
 
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [msg, setMsg] = useState("");
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate(); // 👈 navigation hook
 
   const validate = () => {
     const newErrors = {};
@@ -31,12 +33,19 @@ function Register() {
       setErrors(validationErrors);
       return;
     }
-    setErrors({}); // clear previous errors
+    setErrors({});
     try {
       const res = await axios.post("http://localhost:4000/api/register", form);
-      setMsg(res.data.message);
+      setMsg(res.data.message || "Registration Successful ✅");
+
+      // ✅ Redirect automatically to Login page after successful registration
+      if (res.data.success || res.data.message.includes("success")) {
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      }
     } catch (err) {
-      setMsg("Something went wrong");
+      setMsg("Something went wrong ❌");
     }
   };
 
@@ -50,7 +59,7 @@ function Register() {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
-        <br></br>
+        <br />
         {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
         <br />
 
@@ -60,7 +69,7 @@ function Register() {
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
-        <br></br>
+        <br />
         {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
         <br />
 
@@ -70,15 +79,16 @@ function Register() {
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
-        <br></br>
+        <br />
         {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
         <br />
 
         <button type="submit">Register</button>
       </form>
       <p>{msg}</p>
+
       <p>
-        Already have an account? <a href="/login">Login</a>
+        Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
   );
