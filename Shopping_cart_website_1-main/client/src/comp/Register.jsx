@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
+import "./Register.css";
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [msg, setMsg] = useState("");
@@ -50,44 +50,45 @@ function Register() {
   };
 
   return (
-    <div style={{ width: "300px", margin: "auto", marginTop: "100px" }}>
+    <div className="register-container">
       <h2>Register</h2>
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Name"
+          className="register-input"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
-        <br />
-        {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
-        <br />
+        {errors.name && <p className="error-text">{errors.name}</p>}
 
         <input
           type="email"
           placeholder="Email"
+          className="register-input"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
-        <br />
-        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
-        <br />
+        {errors.email && <p className="error-text">{errors.email}</p>}
 
         <input
           type="password"
           placeholder="Password"
+          className="register-input"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
-        <br />
-        {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
-        <br />
+        {errors.password && <p className="error-text">{errors.password}</p>}
 
-        <button type="submit">Register</button>
+        <button type="submit" className="register-btn">
+          Register
+        </button>
       </form>
-      <p>{msg}</p>
 
-      <p>
+      {msg && <p className="success-msg">{msg}</p>}
+
+      <p className="login-link">
         Already have an account? <Link to="/login">Login</Link>
       </p>
     </div>
