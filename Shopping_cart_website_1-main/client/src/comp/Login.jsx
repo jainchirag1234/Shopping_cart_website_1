@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import "./Login.css";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -11,6 +12,7 @@ function Login() {
 
   const validate = () => {
     const newErrors = {};
+
     if (!form.email) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(form.email)) {
@@ -28,12 +30,14 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-    setErrors({}); // clear previous errors
+
+    setErrors({});
 
     try {
       const res = await axios.post("http://localhost:4000/api/login", form);
@@ -42,9 +46,8 @@ function Login() {
         localStorage.setItem("token", res.data.token);
         setMsg("Login Successful ✅");
 
-        // Redirect to Cart page
         setTimeout(() => {
-          navigate("/useState"); // <-- your cart route
+          navigate("/useState");
         }, 800);
       } else {
         setMsg(res.data.message);
@@ -55,35 +58,36 @@ function Login() {
   };
 
   return (
-    <div style={{ width: "300px", margin: "auto", marginTop: "100px" }}>
+    <div className="login-container">
       <h2>Login</h2>
+
       <form onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
+          className="login-input"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
-        <br></br>
-        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
-        <br />
+        {errors.email && <p className="error-text">{errors.email}</p>}
 
         <input
           type="password"
           placeholder="Password"
+          className="login-input"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
-        <br></br>
-        {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
-        <br />
+        {errors.password && <p className="error-text">{errors.password}</p>}
 
-        <button type="submit">Login</button>
+        <button type="submit" className="login-btn">
+          Login
+        </button>
       </form>
 
-      <p>{msg}</p>
+      {msg && <p className="message">{msg}</p>}
 
-      <p>
+      <p className="register-link">
         Don’t have an account? <Link to="/">Register</Link>
       </p>
     </div>
